@@ -6,12 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { MapPin, Route, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Index = () => {
   const [apiKey, setApiKey] = useState('');
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
+  const [showNameLabels, setShowNameLabels] = useState(false);
 
   const handleAddWaypoint = (place: google.maps.places.PlaceResult) => {
     if (!place.geometry || !place.geometry.location) return;
@@ -108,6 +110,25 @@ const Index = () => {
                 )}
               </div>
               <WaypointSearch onAddWaypoint={handleAddWaypoint} apiKey={apiKey} />
+              
+              {/* Marker Style Toggle */}
+              <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="marker-style" className="text-sm font-medium cursor-pointer">
+                      Show location names on map
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Display full names instead of numbers
+                    </p>
+                  </div>
+                  <Switch
+                    id="marker-style"
+                    checked={showNameLabels}
+                    onCheckedChange={setShowNameLabels}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto pr-2">
@@ -121,7 +142,7 @@ const Index = () => {
 
           {/* Map */}
           <Card className="lg:col-span-2 p-0 bg-card border-border overflow-hidden">
-            <RouteMap waypoints={waypoints} apiKey={apiKey} />
+            <RouteMap waypoints={waypoints} apiKey={apiKey} showNameLabels={showNameLabels} />
           </Card>
         </div>
       </div>

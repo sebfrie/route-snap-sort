@@ -4,6 +4,7 @@ import { Waypoint } from './WaypointList';
 interface RouteMapProps {
   waypoints: Waypoint[];
   apiKey: string;
+  showNameLabels?: boolean;
 }
 
 declare global {
@@ -12,7 +13,7 @@ declare global {
   }
 }
 
-const RouteMap = ({ waypoints, apiKey }: RouteMapProps) => {
+const RouteMap = ({ waypoints, apiKey, showNameLabels = false }: RouteMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
@@ -83,15 +84,21 @@ const RouteMap = ({ waypoints, apiKey }: RouteMapProps) => {
       const marker = new google.maps.Marker({
         position: { lat: waypoints[0].lat, lng: waypoints[0].lng },
         map: googleMapRef.current,
-        label: {
+        label: showNameLabels ? {
+          text: waypoints[0].name,
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '12px',
+          className: 'marker-label',
+        } : {
           text: '1',
           color: 'white',
           fontWeight: 'bold',
         },
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
-          scale: 12,
-          fillColor: '#1e40af',
+          scale: showNameLabels ? 8 : 12,
+          fillColor: showNameLabels ? '#1e40af' : '#1e40af',
           fillOpacity: 1,
           strokeColor: 'white',
           strokeWeight: 2,
@@ -127,15 +134,21 @@ const RouteMap = ({ waypoints, apiKey }: RouteMapProps) => {
             const marker = new google.maps.Marker({
               position: { lat: waypoint.lat, lng: waypoint.lng },
               map: googleMapRef.current,
-              label: {
+              label: showNameLabels ? {
+                text: waypoint.name,
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '12px',
+                className: 'marker-label',
+              } : {
                 text: (index + 1).toString(),
                 color: 'white',
                 fontWeight: 'bold',
               },
               icon: {
                 path: google.maps.SymbolPath.CIRCLE,
-                scale: 12,
-                fillColor: index === 0 ? '#16a34a' : index === waypoints.length - 1 ? '#dc2626' : '#1e40af',
+                scale: showNameLabels ? 8 : 12,
+                fillColor: showNameLabels ? '#1e40af' : (index === 0 ? '#16a34a' : index === waypoints.length - 1 ? '#dc2626' : '#1e40af'),
                 fillOpacity: 1,
                 strokeColor: 'white',
                 strokeWeight: 2,
@@ -146,7 +159,7 @@ const RouteMap = ({ waypoints, apiKey }: RouteMapProps) => {
         }
       }
     );
-  }, [waypoints]);
+  }, [waypoints, showNameLabels]);
 
   return (
     <div className="relative w-full h-full">
