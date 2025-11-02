@@ -14,9 +14,28 @@ const Index = () => {
   const [apiKey, setApiKey] = useState('');
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [showNameLabels, setShowNameLabels] = useState(false);
+  const [markerColor, setMarkerColor] = useState('#1e40af');
+  const [routeColor, setRouteColor] = useState('#0ea5e9');
+  const [apiKeyError, setApiKeyError] = useState('');
+
+  const handleApiKeyChange = (value: string) => {
+    setApiKey(value);
+    if (apiKeyError && value.trim()) {
+      setApiKeyError('');
+    }
+  };
 
   const handleAddWaypoint = (place: google.maps.places.PlaceResult) => {
-    if (!place.geometry || !place.geometry.location) return;
+    if (!apiKey.trim()) {
+      setApiKeyError('Please enter a valid Google Maps API key first');
+      toast.error('API key required');
+      return;
+    }
+
+    if (!place.geometry || !place.geometry.location) {
+      toast.error('Invalid location selected');
+      return;
+    }
 
     const newWaypoint: Waypoint = {
       id: `waypoint-${Date.now()}`,
@@ -64,16 +83,21 @@ const Index = () => {
         {/* API Key Input */}
         <Card className="p-4 bg-card/80 backdrop-blur-sm border-border">
           <Label htmlFor="api-key" className="text-sm font-medium text-foreground mb-2 block">
-            Google Maps API Key
+            Google Maps API Key <span className="text-destructive">*</span>
           </Label>
           <Input
             id="api-key"
             type="password"
             placeholder="Enter your Google Maps API key..."
             value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            className="bg-background border-border"
+            onChange={(e) => handleApiKeyChange(e.target.value)}
+            className={`bg-background ${apiKeyError ? 'border-destructive focus-visible:ring-destructive' : 'border-border'}`}
           />
+          {apiKeyError && (
+            <p className="text-xs text-destructive mt-2 flex items-center gap-1">
+              <span className="font-semibold">Error:</span> {apiKeyError}
+            </p>
+          )}
           <p className="text-xs text-muted-foreground mt-2">
             Get your API key from{' '}
             <a
@@ -84,6 +108,7 @@ const Index = () => {
             >
               Google Cloud Console
             </a>
+            {' '}(Enable Places API & Maps JavaScript API)
           </p>
         </Card>
 
@@ -111,22 +136,76 @@ const Index = () => {
               </div>
               <WaypointSearch onAddWaypoint={handleAddWaypoint} apiKey={apiKey} />
               
-              {/* Marker Style Toggle */}
-              <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col gap-1">
-                    <Label htmlFor="marker-style" className="text-sm font-medium cursor-pointer">
-                      Show location names on map
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      Display full names instead of numbers
-                    </p>
+              {/* Customization Options */}
+              <div className="mt-4 space-y-3">
+                {/* Marker Style Toggle */}
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-1">
+                      <Label htmlFor="marker-style" className="text-sm font-medium cursor-pointer">
+                        Show location names on map
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Display full names instead of numbers
+                      </p>
+                    </div>
+                    <Switch
+                      id="marker-style"
+                      checked={showNameLabels}
+                      onCheckedChange={setShowNameLabels}
+                    />
                   </div>
-                  <Switch
-                    id="marker-style"
-                    checked={showNameLabels}
-                    onCheckedChange={setShowNameLabels}
-                  />
+                </div>
+
+                {/* Color Customization */}
+                <div className="p-3 bg-muted/50 rounded-lg space-y-3">
+                  <h3 className="text-sm font-medium text-foreground">Color Customization</h3>
+                  
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Label htmlFor="marker-color" className="text-xs text-muted-foreground mb-1 block">
+                        Marker Color
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="marker-color"
+                          type="color"
+                          value={markerColor}
+                          onChange={(e) => setMarkerColor(e.target.value)}
+                          className="w-12 h-8 p-1 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={markerColor}
+                          onChange={(e) => setMarkerColor(e.target.value)}
+                          placeholder="#1e40af"
+                          className="flex-1 h-8 text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex-1">
+                      <Label htmlFor="route-color" className="text-xs text-muted-foreground mb-1 block">
+                        Route Color
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="route-color"
+                          type="color"
+                          value={routeColor}
+                          onChange={(e) => setRouteColor(e.target.value)}
+                          className="w-12 h-8 p-1 cursor-pointer"
+                        />
+                        <Input
+                          type="text"
+                          value={routeColor}
+                          onChange={(e) => setRouteColor(e.target.value)}
+                          placeholder="#0ea5e9"
+                          className="flex-1 h-8 text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -142,7 +221,13 @@ const Index = () => {
 
           {/* Map */}
           <Card className="lg:col-span-2 p-0 bg-card border-border overflow-hidden">
-            <RouteMap waypoints={waypoints} apiKey={apiKey} showNameLabels={showNameLabels} />
+            <RouteMap 
+              waypoints={waypoints} 
+              apiKey={apiKey} 
+              showNameLabels={showNameLabels}
+              markerColor={markerColor}
+              routeColor={routeColor}
+            />
           </Card>
         </div>
       </div>
