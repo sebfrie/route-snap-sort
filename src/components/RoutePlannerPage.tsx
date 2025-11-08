@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from 'react';
 import WaypointSearch from '@/components/WaypointSearch';
 import WaypointList, { Waypoint } from '@/components/WaypointList';
@@ -11,7 +13,7 @@ import { MapPin, Route, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
-const Index = () => {
+export default function RoutePlannerPage() {
   const [apiKey, setApiKey] = useState('');
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [showNameLabels, setShowNameLabels] = useState(false);
@@ -241,6 +243,4 @@ const Index = () => {
       </div>
     </div>
   );
-};
-
-export default Index;
+}
