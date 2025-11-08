@@ -5,14 +5,8 @@ import { Search, Plus, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface WaypointSearchProps {
-  onAddWaypoint: (place: google.maps.places.PlaceResult) => void;
+  onAddWaypoint: (place: any) => void;
   apiKey: string;
-}
-
-declare global {
-  interface Window {
-    initAutocomplete?: () => void;
-  }
 }
 
 const WaypointSearch = ({ onAddWaypoint, apiKey }: WaypointSearchProps) => {
@@ -20,14 +14,22 @@ const WaypointSearch = ({ onAddWaypoint, apiKey }: WaypointSearchProps) => {
   const [searchError, setSearchError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const autocompleteRef = useRef<any>(null);
   const scriptLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (!apiKey || !inputRef.current || scriptLoadedRef.current) return;
+    if (!apiKey || !inputRef.current) return;
 
+    // Reset state when API key changes
     setIsLoading(true);
     setSearchError('');
+    scriptLoadedRef.current = false;
+
+    // Remove existing script if any
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
 
     // Load Google Maps script
     const script = document.createElement('script');
@@ -38,6 +40,7 @@ const WaypointSearch = ({ onAddWaypoint, apiKey }: WaypointSearchProps) => {
     script.onerror = () => {
       setSearchError('Failed to load Google Maps. Please check your API key and internet connection.');
       setIsLoading(false);
+      scriptLoadedRef.current = false;
       toast.error('Failed to initialize search');
     };
 
@@ -48,7 +51,7 @@ const WaypointSearch = ({ onAddWaypoint, apiKey }: WaypointSearchProps) => {
       }
 
       try {
-        autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
+        autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
           fields: ['place_id', 'geometry', 'name', 'formatted_address'],
         });
 
@@ -66,15 +69,16 @@ const WaypointSearch = ({ onAddWaypoint, apiKey }: WaypointSearchProps) => {
 
         setIsLoading(false);
         setSearchError('');
+        scriptLoadedRef.current = true;
       } catch (error) {
         setSearchError('Failed to initialize search. Please check your API key.');
         setIsLoading(false);
+        scriptLoadedRef.current = false;
         toast.error('Search initialization failed');
       }
     };
 
     document.head.appendChild(script);
-    scriptLoadedRef.current = true;
 
     return () => {
       if (script.parentNode) {

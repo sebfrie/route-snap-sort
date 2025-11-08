@@ -25,7 +25,7 @@ const Index = () => {
     }
   };
 
-  const handleAddWaypoint = (place: google.maps.places.PlaceResult) => {
+  const handleAddWaypoint = (place: any) => {
     if (!apiKey.trim()) {
       setApiKeyError('Please enter a valid Google Maps API key first');
       toast.error('API key required');
@@ -116,106 +116,105 @@ const Index = () => {
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
           {/* Sidebar */}
           <Card className="lg:col-span-1 p-4 bg-card/80 backdrop-blur-sm border-border flex flex-col">
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-accent" />
-                  Waypoints ({waypoints.length})
-                </h2>
-                {waypoints.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleClearAll}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Clear All
-                  </Button>
-                )}
-              </div>
-              <WaypointSearch onAddWaypoint={handleAddWaypoint} apiKey={apiKey} />
-              
-              {/* Customization Options */}
-              <div className="mt-4 space-y-3">
-                {/* Marker Style Toggle */}
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col gap-1">
-                      <Label htmlFor="marker-style" className="text-sm font-medium cursor-pointer">
-                        Show location names on map
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Display full names instead of numbers
-                      </p>
-                    </div>
-                    <Switch
-                      id="marker-style"
-                      checked={showNameLabels}
-                      onCheckedChange={setShowNameLabels}
-                    />
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-accent" />
+                Waypoints ({waypoints.length})
+              </h2>
+              {waypoints.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearAll}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Clear All
+                </Button>
+              )}
+            </div>
+
+            {/* Customization Options */}
+            <div className="mb-4 space-y-3">
+              {/* Marker Style Toggle */}
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="marker-style" className="text-sm font-medium cursor-pointer">
+                      Show location names on map
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Display full names instead of numbers
+                    </p>
                   </div>
+                  <Switch
+                    id="marker-style"
+                    checked={showNameLabels}
+                    onCheckedChange={setShowNameLabels}
+                  />
                 </div>
+              </div>
 
-                {/* Color Customization */}
-                <div className="p-3 bg-muted/50 rounded-lg space-y-3">
-                  <h3 className="text-sm font-medium text-foreground">Color Customization</h3>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <Label htmlFor="marker-color" className="text-xs text-muted-foreground mb-1 block">
-                        Marker Color
-                      </Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="marker-color"
-                          type="color"
-                          value={markerColor}
-                          onChange={(e) => setMarkerColor(e.target.value)}
-                          className="w-12 h-8 p-1 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={markerColor}
-                          onChange={(e) => setMarkerColor(e.target.value)}
-                          placeholder="#1e40af"
-                          className="flex-1 h-8 text-xs"
-                        />
-                      </div>
+              {/* Color Customization */}
+              <div className="p-3 bg-muted/50 rounded-lg space-y-3">
+                <h3 className="text-sm font-medium text-foreground">Color Customization</h3>
+                
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <Label htmlFor="marker-color" className="text-xs text-muted-foreground mb-1 block">
+                      Marker Color
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="marker-color"
+                        type="color"
+                        value={markerColor}
+                        onChange={(e) => setMarkerColor(e.target.value)}
+                        className="w-12 h-8 p-1 cursor-pointer"
+                      />
+                      <Input
+                        type="text"
+                        value={markerColor}
+                        onChange={(e) => setMarkerColor(e.target.value)}
+                        placeholder="#1e40af"
+                        className="flex-1 h-8 text-xs"
+                      />
                     </div>
+                  </div>
 
-                    <div className="flex-1">
-                      <Label htmlFor="route-color" className="text-xs text-muted-foreground mb-1 block">
-                        Route Color
-                      </Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="route-color"
-                          type="color"
-                          value={routeColor}
-                          onChange={(e) => setRouteColor(e.target.value)}
-                          className="w-12 h-8 p-1 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={routeColor}
-                          onChange={(e) => setRouteColor(e.target.value)}
-                          placeholder="#0ea5e9"
-                          className="flex-1 h-8 text-xs"
-                        />
-                      </div>
+                  <div className="flex-1">
+                    <Label htmlFor="route-color" className="text-xs text-muted-foreground mb-1 block">
+                      Route Color
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="route-color"
+                        type="color"
+                        value={routeColor}
+                        onChange={(e) => setRouteColor(e.target.value)}
+                        className="w-12 h-8 p-1 cursor-pointer"
+                      />
+                      <Input
+                        type="text"
+                        value={routeColor}
+                        onChange={(e) => setRouteColor(e.target.value)}
+                        placeholder="#0ea5e9"
+                        className="flex-1 h-8 text-xs"
+                      />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2">
+            <div className="flex-1 overflow-y-auto pr-2 space-y-2">
               <WaypointList
                 waypoints={waypoints}
                 onReorder={handleReorderWaypoints}
                 onRemove={handleRemoveWaypoint}
               />
+              
+              <WaypointSearch onAddWaypoint={handleAddWaypoint} apiKey={apiKey} />
             </div>
           </Card>
 

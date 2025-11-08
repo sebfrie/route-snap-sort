@@ -11,13 +11,7 @@ interface RouteMapProps {
   routeColor?: string;
 }
 
-declare global {
-  interface Window {
-    initMap?: () => void;
-  }
-}
-
-const RouteMap = ({ 
+const RouteMap = ({
   waypoints, 
   apiKey, 
   showNameLabels = false,
@@ -25,17 +19,25 @@ const RouteMap = ({
   routeColor = '#0ea5e9'
 }: RouteMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const googleMapRef = useRef<google.maps.Map | null>(null);
-  const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
-  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const googleMapRef = useRef<any>(null);
+  const directionsServiceRef = useRef<any>(null);
+  const directionsRendererRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
   const scriptLoadedRef = useRef(false);
   const [mapError, setMapError] = useState('');
 
   useEffect(() => {
-    if (!apiKey || !mapRef.current || scriptLoadedRef.current) return;
+    if (!apiKey || !mapRef.current) return;
 
+    // Reset state when API key changes
     setMapError('');
+    scriptLoadedRef.current = false;
+
+    // Remove existing script if any
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
 
     // Load Google Maps script
     const script = document.createElement('script');
@@ -45,6 +47,7 @@ const RouteMap = ({
 
     script.onerror = () => {
       setMapError('Failed to load Google Maps. Please verify your API key has Maps JavaScript API enabled.');
+      scriptLoadedRef.current = false;
       toast.error('Map failed to load');
     };
 
@@ -52,7 +55,7 @@ const RouteMap = ({
       if (!mapRef.current) return;
 
       try {
-        googleMapRef.current = new google.maps.Map(mapRef.current, {
+        googleMapRef.current = new window.google.maps.Map(mapRef.current, {
           center: { lat: 40.7128, lng: -74.0060 },
           zoom: 12,
           styles: [
@@ -64,8 +67,8 @@ const RouteMap = ({
           ],
         });
 
-        directionsServiceRef.current = new google.maps.DirectionsService();
-        directionsRendererRef.current = new google.maps.DirectionsRenderer({
+        directionsServiceRef.current = new window.google.maps.DirectionsService();
+        directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
           map: googleMapRef.current,
           suppressMarkers: true,
           polylineOptions: {
@@ -75,14 +78,15 @@ const RouteMap = ({
         });
         
         setMapError('');
+        scriptLoadedRef.current = true;
       } catch (error) {
         setMapError('Failed to initialize map. Please check your API key and permissions.');
+        scriptLoadedRef.current = false;
         toast.error('Map initialization failed');
       }
     };
 
     document.head.appendChild(script);
-    scriptLoadedRef.current = true;
 
     return () => {
       if (script.parentNode) {
@@ -116,7 +120,7 @@ const RouteMap = ({
 
     if (waypoints.length === 1) {
       // Single waypoint - just show marker and center
-      const marker = new google.maps.Marker({
+      const marker = new window.google.maps.Marker({
         position: { lat: waypoints[0].lat, lng: waypoints[0].lng },
         map: googleMapRef.current,
         label: showNameLabels ? {
@@ -131,7 +135,7 @@ const RouteMap = ({
           fontWeight: 'bold',
         },
         icon: {
-          path: google.maps.SymbolPath.CIRCLE,
+          path: window.google.maps.SymbolPath.CIRCLE,
           scale: showNameLabels ? 8 : 12,
           fillColor: markerColor,
           fillOpacity: 1,
@@ -158,15 +162,15 @@ const RouteMap = ({
         origin,
         destination,
         waypoints: waypointsForRoute,
-        travelMode: google.maps.TravelMode.DRIVING,
+        travelMode: window.google.maps.TravelMode.DRIVING,
       },
-      (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK && result && directionsRendererRef.current) {
+      (result: any, status: any) => {
+        if (status === window.google.maps.DirectionsStatus.OK && result && directionsRendererRef.current) {
           directionsRendererRef.current.setDirections(result);
 
           // Add custom markers
           waypoints.forEach((waypoint, index) => {
-            const marker = new google.maps.Marker({
+            const marker = new window.google.maps.Marker({
               position: { lat: waypoint.lat, lng: waypoint.lng },
               map: googleMapRef.current,
               label: showNameLabels ? {
@@ -181,7 +185,7 @@ const RouteMap = ({
                 fontWeight: 'bold',
               },
               icon: {
-                path: google.maps.SymbolPath.CIRCLE,
+                path: window.google.maps.SymbolPath.CIRCLE,
                 scale: showNameLabels ? 8 : 12,
                 fillColor: showNameLabels ? markerColor : (index === 0 ? '#16a34a' : index === waypoints.length - 1 ? '#dc2626' : markerColor),
                 fillOpacity: 1,
