@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, X, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export interface Waypoint {
   id: string;
@@ -38,41 +39,56 @@ const SortableWaypoint = ({ waypoint, index, onRemove }: SortableWaypointProps) 
   };
 
   return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      className="p-4 mb-2 bg-card border-border hover:shadow-md transition-shadow"
-    >
-      <div className="flex items-center gap-3">
-        <button
-          className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical className="h-5 w-5" />
-        </button>
-        
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
-            {index + 1}
+    <TooltipProvider>
+      <Card
+        ref={setNodeRef}
+        style={style}
+        className="p-3 mb-2 bg-card border-border hover:shadow-md transition-shadow"
+      >
+        <div className="flex items-start gap-3">
+          <button
+            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors mt-1"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-5 w-5" />
+          </button>
+          
+          <div className="flex items-start gap-2 flex-1 min-w-0">
+            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex-shrink-0 mt-0.5">
+              {index + 1}
+            </div>
+            <div className="flex-1 min-w-0">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="font-medium text-foreground break-words leading-tight">{waypoint.name}</p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs">{waypoint.name}</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="text-xs text-muted-foreground break-words leading-tight mt-1">{waypoint.address}</p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs">{waypoint.address}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
-          <MapPin className="h-4 w-4 text-accent flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-foreground truncate">{waypoint.name}</p>
-            <p className="text-sm text-muted-foreground truncate">{waypoint.address}</p>
-          </div>
-        </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onRemove(waypoint.id)}
-          className="flex-shrink-0 text-muted-foreground hover:text-destructive"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-    </Card>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onRemove(waypoint.id)}
+            className="flex-shrink-0 text-muted-foreground hover:text-destructive h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </Card>
+    </TooltipProvider>
   );
 };
 

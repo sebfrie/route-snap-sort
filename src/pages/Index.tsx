@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { MapPin, Route, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 const Index = () => {
   const [apiKey, setApiKey] = useState('');
@@ -113,121 +114,129 @@ const Index = () => {
         </Card>
 
         {/* Main Content */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-0">
-          {/* Sidebar */}
-          <Card className="lg:col-span-1 p-4 bg-card/80 backdrop-blur-sm border-border flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-accent" />
-                Waypoints ({waypoints.length})
-              </h2>
-              {waypoints.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleClearAll}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Clear All
-                </Button>
-              )}
-            </div>
+        <div className="flex-1 min-h-0">
+          <ResizablePanelGroup direction="horizontal" className="gap-4">
+            {/* Sidebar */}
+            <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+              <Card className="h-full p-4 bg-card/80 backdrop-blur-sm border-border flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-accent" />
+                    Waypoints ({waypoints.length})
+                  </h2>
+                  {waypoints.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleClearAll}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Clear All
+                    </Button>
+                  )}
+                </div>
 
-            {/* Customization Options */}
-            <div className="mb-4 space-y-3">
-              {/* Marker Style Toggle */}
-              <div className="p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col gap-1">
-                    <Label htmlFor="marker-style" className="text-sm font-medium cursor-pointer">
-                      Show location names on map
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      Display full names instead of numbers
-                    </p>
+                {/* Customization Options */}
+                <div className="mb-4 space-y-3">
+                  {/* Marker Style Toggle */}
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col gap-1">
+                        <Label htmlFor="marker-style" className="text-sm font-medium cursor-pointer">
+                          Show location names on map
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Display full names instead of numbers
+                        </p>
+                      </div>
+                      <Switch
+                        id="marker-style"
+                        checked={showNameLabels}
+                        onCheckedChange={setShowNameLabels}
+                      />
+                    </div>
                   </div>
-                  <Switch
-                    id="marker-style"
-                    checked={showNameLabels}
-                    onCheckedChange={setShowNameLabels}
+
+                  {/* Color Customization */}
+                  <div className="p-3 bg-muted/50 rounded-lg space-y-3">
+                    <h3 className="text-sm font-medium text-foreground">Color Customization</h3>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <Label htmlFor="marker-color" className="text-xs text-muted-foreground mb-1 block">
+                          Marker Color
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="marker-color"
+                            type="color"
+                            value={markerColor}
+                            onChange={(e) => setMarkerColor(e.target.value)}
+                            className="w-12 h-8 p-1 cursor-pointer"
+                          />
+                          <Input
+                            type="text"
+                            value={markerColor}
+                            onChange={(e) => setMarkerColor(e.target.value)}
+                            placeholder="#1e40af"
+                            className="flex-1 h-8 text-xs"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex-1">
+                        <Label htmlFor="route-color" className="text-xs text-muted-foreground mb-1 block">
+                          Route Color
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="route-color"
+                            type="color"
+                            value={routeColor}
+                            onChange={(e) => setRouteColor(e.target.value)}
+                            className="w-12 h-8 p-1 cursor-pointer"
+                          />
+                          <Input
+                            type="text"
+                            value={routeColor}
+                            onChange={(e) => setRouteColor(e.target.value)}
+                            placeholder="#0ea5e9"
+                            className="flex-1 h-8 text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto pr-2 space-y-2">
+                  <WaypointList
+                    waypoints={waypoints}
+                    onReorder={handleReorderWaypoints}
+                    onRemove={handleRemoveWaypoint}
                   />
+                  
+                  <WaypointSearch onAddWaypoint={handleAddWaypoint} apiKey={apiKey} />
                 </div>
-              </div>
+              </Card>
+            </ResizablePanel>
 
-              {/* Color Customization */}
-              <div className="p-3 bg-muted/50 rounded-lg space-y-3">
-                <h3 className="text-sm font-medium text-foreground">Color Customization</h3>
-                
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <Label htmlFor="marker-color" className="text-xs text-muted-foreground mb-1 block">
-                      Marker Color
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="marker-color"
-                        type="color"
-                        value={markerColor}
-                        onChange={(e) => setMarkerColor(e.target.value)}
-                        className="w-12 h-8 p-1 cursor-pointer"
-                      />
-                      <Input
-                        type="text"
-                        value={markerColor}
-                        onChange={(e) => setMarkerColor(e.target.value)}
-                        placeholder="#1e40af"
-                        className="flex-1 h-8 text-xs"
-                      />
-                    </div>
-                  </div>
+            <ResizableHandle withHandle className="w-2 hover:bg-accent/20 transition-colors" />
 
-                  <div className="flex-1">
-                    <Label htmlFor="route-color" className="text-xs text-muted-foreground mb-1 block">
-                      Route Color
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="route-color"
-                        type="color"
-                        value={routeColor}
-                        onChange={(e) => setRouteColor(e.target.value)}
-                        className="w-12 h-8 p-1 cursor-pointer"
-                      />
-                      <Input
-                        type="text"
-                        value={routeColor}
-                        onChange={(e) => setRouteColor(e.target.value)}
-                        placeholder="#0ea5e9"
-                        className="flex-1 h-8 text-xs"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto pr-2 space-y-2">
-              <WaypointList
-                waypoints={waypoints}
-                onReorder={handleReorderWaypoints}
-                onRemove={handleRemoveWaypoint}
-              />
-              
-              <WaypointSearch onAddWaypoint={handleAddWaypoint} apiKey={apiKey} />
-            </div>
-          </Card>
-
-          {/* Map */}
-          <Card className="lg:col-span-2 p-0 bg-card border-border overflow-hidden">
-            <RouteMap 
-              waypoints={waypoints} 
-              apiKey={apiKey} 
-              showNameLabels={showNameLabels}
-              markerColor={markerColor}
-              routeColor={routeColor}
-            />
-          </Card>
+            {/* Map */}
+            <ResizablePanel defaultSize={70}>
+              <Card className="h-full p-0 bg-card border-border overflow-hidden">
+                <RouteMap 
+                  waypoints={waypoints} 
+                  apiKey={apiKey} 
+                  showNameLabels={showNameLabels}
+                  markerColor={markerColor}
+                  routeColor={routeColor}
+                />
+              </Card>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </div>
       </div>
     </div>
