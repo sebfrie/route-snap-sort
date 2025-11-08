@@ -54,11 +54,23 @@ npm run dev
 
 This project is built with:
 
-- Next.js 14 (App Router)
+- Next.js 16 (App Router with Turbopack)
 - TypeScript
-- React
+- React 19
 - shadcn-ui
 - Tailwind CSS
+
+## Development
+
+```sh
+npm run dev
+```
+
+The app will be available at http://localhost:3000
+
+## Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions and notes about the Next.js 16 migration.
 
 ## How can I deploy this project?
 
