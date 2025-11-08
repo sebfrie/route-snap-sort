@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from 'react';
 import { Waypoint } from './WaypointList';
 import { AlertCircle } from 'lucide-react';
